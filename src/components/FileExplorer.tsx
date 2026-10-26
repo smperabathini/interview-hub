@@ -4,6 +4,10 @@ import {
   FileCode, 
   FileText, 
   Database, 
+  ChevronRight, 
+  ChevronDown, 
+  Plus, 
+  Cpu, 
   Layers
 } from 'lucide-react';
 import { FileNode } from '../types';
@@ -27,23 +31,23 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
   };
 
   return (
-    <div className="w-full flex-shrink-0 bg-white flex flex-col h-full select-none">
+    <div className="w-56 flex-shrink-0 bg-white border-r border-slate-300 flex flex-col h-full select-none">
       {/* Explorer Header */}
-      <div className="px-3 py-2 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-        <span className="text-[11px] font-mono font-medium uppercase text-slate-500 flex items-center space-x-1">
-          <Layers className="w-3 h-3 text-slate-400" />
-          <span>Files</span>
+      <div className="px-3 py-2.5 border-b border-slate-200 flex items-center justify-between bg-slate-50/50">
+        <span className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-600 flex items-center space-x-1.5">
+          <Layers className="w-3 h-3 text-slate-500" />
+          <span>Sandbox Files</span>
         </span>
         <span className="text-[10px] font-mono text-slate-400">
           {files.length} items
         </span>
       </div>
 
-      {/* Directory Tree */}
-      <div className="p-2 space-y-0.5 overflow-y-auto flex-1 font-mono text-xs">
-        <div className="px-1.5 py-1 text-[10px] text-slate-400 flex items-center space-x-1">
+      {/* Workspace Directory Tree */}
+      <div className="p-2 space-y-1 overflow-y-auto flex-1 font-mono text-xs">
+        <div className="px-2 py-1 text-[10px] font-bold uppercase text-slate-400 tracking-wider flex items-center space-x-1">
           <Folder className="w-3 h-3 text-slate-400" />
-          <span>src</span>
+          <span>workspace-root</span>
         </div>
 
         <div className="pl-2 space-y-0.5">
@@ -53,20 +57,20 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
               <button
                 key={file.id}
                 onClick={() => onSelectFile(file.id)}
-                className={`w-full flex items-center space-x-2 px-2 py-1.5 rounded text-left transition cursor-pointer ${
+                className={`w-full flex items-center space-x-2 px-2.5 py-1.5 rounded-md text-left transition group ${
                   isActive
-                    ? 'bg-slate-900 text-white font-medium'
-                    : 'text-slate-700 hover:bg-slate-100'
+                    ? 'bg-slate-900 text-white font-medium shadow-sm'
+                    : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'
                 }`}
               >
                 <span className={isActive ? 'text-white' : ''}>
                   {getFileIcon(file.name)}
                 </span>
-                <span className="truncate flex-1 text-[11px]">
+                <span className="truncate flex-1 text-[11px] font-medium">
                   {file.name}
                 </span>
                 {file.isModified && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 ml-auto" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 ml-auto" title="Unsaved changes" />
                 )}
               </button>
             );
@@ -74,13 +78,16 @@ export const FileExplorer: React.FC<FileExplorerProps> = ({
         </div>
       </div>
 
-      {/* Footer */}
-      <div className="p-2 border-t border-slate-100 text-[10px] font-mono text-slate-400 flex items-center justify-between">
-        <span className="flex items-center space-x-1">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-          <span>Mock Runner</span>
-        </span>
-        <span>Node v20</span>
+      {/* Sandbox Environment Runtime Pill */}
+      <div className="p-3 border-t border-slate-200 bg-slate-50 text-[10px] font-mono text-slate-500 space-y-1">
+        <div className="flex items-center justify-between">
+          <span className="flex items-center space-x-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <span className="font-semibold text-slate-700">Sandbox V8 isolate</span>
+          </span>
+          <span className="text-slate-400">Node v20 LTS</span>
+        </div>
+        <p className="text-[9px] text-slate-400">Isolated memory container active</p>
       </div>
     </div>
   );

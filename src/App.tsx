@@ -47,35 +47,36 @@ export function App() {
   // Auth Handlers
   const handleLoginSuccess = (user: UserProfile) => {
     setCurrentUser(user);
-    setToastMessage(`Signed in as ${user.name}`);
+    setToastMessage(`Signed in as ${user.name} via ${user.provider.toUpperCase()}`);
+    // Return to previous view or directory
     setCurrentView(previousView === 'login' ? 'directory' : previousView);
-    setTimeout(() => setToastMessage(null), 3000);
+    setTimeout(() => setToastMessage(null), 4000);
   };
 
   const handleLogout = () => {
     setCurrentUser(null);
-    setToastMessage('Signed out');
-    setTimeout(() => setToastMessage(null), 2500);
+    setToastMessage('Successfully logged out.');
+    setTimeout(() => setToastMessage(null), 3000);
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#fafafa] text-slate-900 flex flex-col font-sans selection:bg-indigo-100 selection:text-indigo-900">
       
-      {/* Toast Notification */}
+      {/* Toast Notification Banner */}
       {toastMessage && (
-        <div className="fixed bottom-5 right-5 z-50 flex items-center space-x-2 px-3.5 py-2 bg-slate-900 text-white text-xs font-medium rounded-lg shadow-lg border border-slate-700 animate-in fade-in duration-150">
-          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+        <div className="fixed bottom-6 right-6 z-50 flex items-center space-x-2.5 px-4 py-3 bg-slate-950 text-white text-xs font-semibold rounded-xl shadow-2xl border border-slate-800 animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
           <span>{toastMessage}</span>
           <button 
             onClick={() => setToastMessage(null)}
             className="ml-2 text-slate-400 hover:text-white"
           >
-            <X className="w-3 h-3" />
+            <X className="w-3.5 h-3.5" />
           </button>
         </div>
       )}
 
-      {/* Top Navigation */}
+      {/* Top Global Navigation Bar */}
       <Navbar
         currentView={currentView}
         setCurrentView={navigateTo}
@@ -85,7 +86,7 @@ export function App() {
         onLogout={handleLogout}
       />
 
-      {/* Main Pages */}
+      {/* Main Content Router */}
       <main className="flex-1 flex flex-col">
         {currentView === 'directory' && (
           <ProblemDirectory
@@ -122,7 +123,7 @@ export function App() {
         )}
       </main>
 
-      {/* New Problem Modal */}
+      {/* AI Problem Generator Modal */}
       <AiProblemGeneratorModal
         isOpen={isGeneratorOpen}
         onClose={() => setIsGeneratorOpen(false)}
