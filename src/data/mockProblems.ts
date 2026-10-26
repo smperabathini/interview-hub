@@ -3,14 +3,14 @@ import { Problem } from '../types';
 export const MOCK_PROBLEMS: Problem[] = [
   {
     id: 'prob-fullstack-collab',
-    title: 'Real-Time Document Editor with Operational Transformation (OT)',
+    title: 'Collaborative Document Editor',
     category: 'full-stack',
-    categoryLabel: 'Full-Stack Development',
+    categoryLabel: 'Full-Stack',
     difficulty: 'Advanced',
     scalabilityRating: 9,
-    scalabilityTier: 'Ultra Scale (100K Concurrent WebSockets)',
+    scalabilityTier: '100K Users',
     estimatedMinutes: 60,
-    summary: 'Build a multi-file real-time collaborative document backend and client preview, handling concurrent character insertions, cursor syncing, and race conditions.',
+    summary: 'Build a real-time collaborative document editor that syncs text changes and cursor positions without conflicts.',
     detailedDescription: `In this full-stack challenge, you will implement the core synchronization engine for a Google Docs-style real-time collaborative workspace.
 
 ### Core Architecture Requirements:
@@ -285,14 +285,14 @@ CREATE TABLE operation_journals (
   /* NEW: DSA QUESTION 1 */
   {
     id: 'prob-dsa-scheduler',
-    title: 'Topological Task Graph Scheduler with Cycle Detection & Parallel Levels',
+    title: 'Task Dependency Scheduler',
     category: 'dsa',
-    categoryLabel: 'Data Structures & Algorithms',
+    categoryLabel: 'Algorithms',
     difficulty: 'Advanced',
     scalabilityRating: 9,
-    scalabilityTier: 'High (50K Task Dependency DAG)',
+    scalabilityTier: '50K Tasks',
     estimatedMinutes: 50,
-    summary: 'Implement a dependency resolution engine using Kahn’s Algorithm / DFS topological sort with cycle detection, Kahn level-parallelization, and memory-bounded adjacency lists.',
+    summary: 'Build a task scheduler that detects circular dependencies and runs independent tasks in parallel.',
     detailedDescription: `Modern build systems (Bazel, Gradle) and task orchestrators (Airflow) require topological DAG scheduling.
 
 ### Problem Requirements:
@@ -483,14 +483,14 @@ export class TaskScheduler {
   /* NEW: QUANT MATH & PROBABILITY QUESTION 1 */
   {
     id: 'prob-quant-montecarlo',
-    title: 'Monte Carlo Option Pricing Engine & Geometric Brownian Motion',
+    title: 'Monte Carlo Option Pricing',
     category: 'quant',
-    categoryLabel: 'Quantitative Systems (Math & Probability)',
+    categoryLabel: 'Math & Quant',
     difficulty: 'Advanced',
     scalabilityRating: 9,
-    scalabilityTier: 'Ultra Scale (10M Stochastic Paths)',
+    scalabilityTier: '10M Paths',
     estimatedMinutes: 55,
-    summary: 'Implement a vectorized Monte Carlo simulation to price European Call/Put options using Geometric Brownian Motion (GBM) with Box-Muller normal transforms and variance reduction.',
+    summary: 'Simulate stock price movements using Monte Carlo methods to calculate European option prices.',
     detailedDescription: `Quantitative trading desks price non-linear derivatives using stochastic simulations.
 
 ### Mathematical & Probability Requirements:
@@ -688,14 +688,14 @@ export class MonteCarloOptionEngine {
   /* NEW: QUANT MATH & PROBABILITY QUESTION 2 */
   {
     id: 'prob-quant-markov',
-    title: 'Markov Chain Steady-State Convergence & Gambler\'s Ruin Simulator',
+    title: 'Markov Chain Probability Simulator',
     category: 'quant',
-    categoryLabel: 'Quantitative Systems (Math & Probability)',
+    categoryLabel: 'Math & Quant',
     difficulty: 'Intermediate',
     scalabilityRating: 8,
-    scalabilityTier: 'High (Matrix Exponentiation O(log K))',
+    scalabilityTier: 'Fast Matrix Ops',
     estimatedMinutes: 45,
-    summary: 'Model discrete-time absorbing and ergodic Markov chains, computing stationary distribution vectors $\\pi P = \\pi$ and absorbing state probabilities for Gambler’s ruin.',
+    summary: 'Model state transitions to compute long-term steady states and calculate gambler ruin chances.',
     detailedDescription: `Probability theory and discrete stochastic processes are foundational for quant trading and risk modelling.
 
 ### Mathematical Requirements:
@@ -859,14 +859,14 @@ export class MarkovChain {
 
   {
     id: 'prob-api-ratelimit',
-    title: 'Distributed Sliding Window Rate Limiter & Idempotency Gateway',
+    title: 'API Rate Limiter & Idempotency Key',
     category: 'api-design',
-    categoryLabel: 'API & Gateway Design',
+    categoryLabel: 'API Design',
     difficulty: 'Intermediate',
     scalabilityRating: 8,
-    scalabilityTier: 'High (50K req/s)',
+    scalabilityTier: '50K req/s',
     estimatedMinutes: 45,
-    summary: 'Design a high-throughput API gateway middleware implementing sliding window log rate limiting and atomic idempotency key validation with distributed cache semantics.',
+    summary: 'Build an API rate limiter that restricts requests per second and prevents duplicate submissions.',
     detailedDescription: `High-scale payment and webhook APIs require robust defenses against double-spending and abuse.`,
     architectureRequirements: [
       'Implement atomic Redis-style sorted set logic in memory',
@@ -951,14 +951,14 @@ export class MarkovChain {
   },
   {
     id: 'prob-lowlevel-lru',
-    title: 'Lock-Free Concurrent LRU Cache with Segment Striping',
+    title: 'Fast In-Memory LRU Cache',
     category: 'low-level',
-    categoryLabel: 'Low-Level System Design',
+    categoryLabel: 'Systems',
     difficulty: 'Advanced',
     scalabilityRating: 10,
-    scalabilityTier: 'Ultra Scale (1M+ req/s, Multi-Core)',
+    scalabilityTier: '1M+ req/s',
     estimatedMinutes: 60,
-    summary: 'Construct an ultra-low-latency in-memory LRU cache capable of concurrent reads and writes with segmented bucket partitioning to avoid global lock contention.',
+    summary: 'Build an in-memory cache that evicts least recently used items and handles high-speed concurrent access.',
     detailedDescription: `Standard LRU implementations protect the doubly-linked list with a global mutex, severely bottlenecking multi-threaded throughput.
 
 ### Problem Requirements:
@@ -1052,14 +1052,14 @@ export class MarkovChain {
   },
   {
     id: 'prob-agent-react',
-    title: 'Autonomous Agent ReAct Engine with Guardrailed Tool Execution',
+    title: 'AI Agent with Tool Calling',
     category: 'agentic-ai',
-    categoryLabel: 'Agentic AI Systems',
+    categoryLabel: 'AI Systems',
     difficulty: 'Intermediate',
     scalabilityRating: 7,
-    scalabilityTier: 'Production Agentic Pipeline',
+    scalabilityTier: 'Agent Pipeline',
     estimatedMinutes: 50,
-    summary: 'Develop an agentic reasoning loop (Reasoning + Acting) that dynamically selects tools, parses observations, handles cyclic loop prevention, and enforces output schemas.',
+    summary: 'Build an AI loop that reasons about steps, calls available tools, and returns final answers safely.',
     detailedDescription: `Build an enterprise LLM agent orchestrator executing multi-turn tool calling pipelines.`,
     architectureRequirements: [
       'Pure deterministic state machine without unhandled exceptions',
@@ -1126,14 +1126,14 @@ export class MarkovChain {
   },
   {
     id: 'prob-ml-vector',
-    title: 'Vector Search Engine with Cosine Similarity & Index Sharding',
+    title: 'Vector Similarity Search',
     category: 'ml-fundamentals',
-    categoryLabel: 'Machine Learning Fundamentals',
+    categoryLabel: 'Machine Learning',
     difficulty: 'Intermediate',
     scalabilityRating: 8,
-    scalabilityTier: 'High (10M Embeddings / 50ms Search)',
+    scalabilityTier: '10M Vectors',
     estimatedMinutes: 45,
-    summary: 'Implement high-dimensional vector similarity indexing using normalized dot products, cosine distance, and k-nearest neighbors (k-NN) with inverted file quantization.',
+    summary: 'Find the nearest matching vectors using cosine similarity for embeddings and text search.',
     detailedDescription: `Vector databases like Pinecone and Milvus power modern RAG (Retrieval Augmented Generation).`,
     architectureRequirements: [
       'SIMD vector dot-product calculation simulation',
