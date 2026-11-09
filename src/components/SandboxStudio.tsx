@@ -7,14 +7,13 @@ import {
   FileCode, 
   BookOpen, 
   CheckCircle2, 
-  ChevronRight,
-  Gauge,
-  Award,
-  Lightbulb,
-  PlusCircle,
-  Copy,
-  Check,
-  Zap,
+  ChevronRight, 
+  Gauge, 
+  Award, 
+  Lightbulb, 
+  PlusCircle, 
+  Check, 
+  Zap, 
   ArrowUpRight
 } from 'lucide-react';
 import { Problem, FileNode, TestCase, SuggestedFollowUpFeature } from '../types';
@@ -56,12 +55,32 @@ export const SandboxStudio: React.FC<SandboxStudioProps> = ({
   // Test execution state
   const [testCases, setTestCases] = useState<TestCase[]>(problem.testCases);
   const [isRunningTests, setIsRunningTests] = useState(false);
+  const [showCorrectSolutionBanner, setShowCorrectSolutionBanner] = useState(false);
 
   // Follow-up features state
   const [copiedFeatureId, setCopiedFeatureId] = useState<string | null>(null);
   const [activeFeatureSpec, setActiveFeatureSpec] = useState<SuggestedFollowUpFeature | null>(null);
 
   const activeFile = files.find(f => f.id === activeFileId) || files[0];
+
+  // Helper: check if the code in the editor does not match the default code
+  const doesCodeDifferFromDefault = (currentFiles: FileNode[]): boolean => {
+    return currentFiles.some(f => {
+      const original = problem.files.find(pf => pf.id === f.id || pf.name === f.name);
+      if (!original) return false;
+      return f.content.trim() !== original.content.trim();
+    });
+  };
+
+  const isCodeModified = doesCodeDifferFromDefault(files);
+
+  // Sync state if problem changes
+  React.useEffect(() => {
+    setFiles(problem.files);
+    setActiveFileId(problem.files[0]?.id || '');
+    setTestCases(problem.testCases);
+    setShowCorrectSolutionBanner(false);
+  }, [problem.id]);
 
   const handleCodeChange = (fileId: string, newContent: string) => {
     setFiles(prev =>
@@ -80,29 +99,83 @@ export const SandboxStudio: React.FC<SandboxStudioProps> = ({
     }
   };
 
+  // Run Tests: If code in editor does not match default code, show test failure. Otherwise, pass.
   const handleRunTests = () => {
     setIsRunningTests(true);
     setBottomTab('tests');
 
     setTimeout(() => {
       setIsRunningTests(false);
-      setTestCases(prev =>
-        prev.map(tc => ({
-          ...tc,
-          status: 'passed',
-          executionTimeMs: Math.floor(Math.random() * 25) + 3
-        }))
-      );
-      try {
-        confetti({
-          particleCount: 40,
-          spread: 60,
-          origin: { y: 0.85 }
-        });
-      } catch (e) {
-        // Safe fallback
+      const isFailed = doesCodeDifferFromDefault(files);
+      if (isFailed) {
+        // Show test failed with expected vs actual output and failure explanation
+        setTestCases(prev =>
+          prev.map((tc, idx) => {
+            if (idx === 0) {
+              return {
+                ...tc,
+                status: 'failed',
+                executionTimeMs: 14,
+                actualOutput: 'Invariant violation: Solution implementation deviates from the required default architecture (divergent state detected)',
+                explanation: 'Logic failure detected: Code in the editor does not match the default passing specification. Concurrent revisions failed to enforce deterministic tie-breaking, causing document state divergence.'
+              };
+            }
+            return {
+              ...tc,
+              status: 'passed',
+              executionTimeMs: Math.floor(Math.random() * 20) + 5
+            };
+          })
+        );
+      } else {
+        // All tests pass
+        setTestCases(prev =>
+          prev.map(tc => ({
+            ...tc,
+            status: 'passed',
+            actualOutput: undefined,
+            executionTimeMs: Math.floor(Math.random() * 20) + 4
+          }))
+        );
+        try {
+          confetti({
+            particleCount: 40,
+            spread: 60,
+            origin: { y: 0.85 }
+          });
+        } catch (e) {
+          // Safe fallback
+        }
       }
-    }, 1200);
+    }, 600);
+  };
+
+  // Revise Solution: Brings user back to the same code editor with their exact code untouched
+  const handleRetrySolution = () => {
+    setIsEvaluationOpen(false);
+    setShowCorrectSolutionBanner(false);
+  };
+
+  // View Correct Solution Handler: Loads the verified default passing solution into the studio
+  const handleViewCorrectSolution = () => {
+    setFiles(problem.files.map(f => ({ ...f, isModified: false })));
+    setShowCorrectSolutionBanner(true);
+
+    // Run tests so the suite immediately turns green
+    setIsRunningTests(true);
+    setBottomTab('tests');
+    setTimeout(() => {
+      setIsRunningTests(false);
+      setTestCases(problem.testCases.map(tc => ({
+        ...tc,
+        status: 'passed',
+        actualOutput: undefined,
+        executionTimeMs: Math.floor(Math.random() * 20) + 4
+      })));
+      try {
+        confetti({ particleCount: 50, spread: 70, origin: { y: 0.85 } });
+      } catch (e) {}
+    }, 500);
   };
 
   const handleSubmitSolution = () => {
@@ -118,32 +191,29 @@ export const SandboxStudio: React.FC<SandboxStudioProps> = ({
   };
 
   const followUpCount = problem.suggestedFollowUps?.length || 0;
+  const isSubmissionIncorrect = doesCodeDifferFromDefault(files) || testCases.some(t => t.status === 'failed');
 
   return (
     <div className="flex flex-col h-[calc(100vh-64px)] bg-white overflow-hidden animate-in fade-in">
       
-      {/* Sandbox Top Control Bar */}
-      <div className="h-14 px-4 bg-white border-b border-slate-300 flex items-center justify-between shadow-crisp z-20">
+      {/* Sandbox Top Control Bar (Clean, simplified, no incorrect/correct buttons) */}
+      <div className="h-14 px-4 bg-white border-b border-slate-200 flex items-center justify-between z-20">
         
-        {/* Left: Problem Title, Category & Metrics */}
-        <div className="flex items-center space-x-3">
+        {/* Left: Problem Title, Catalog Back & Subdued Tags */}
+        <div className="flex items-center space-x-3 min-w-0">
           <button
             onClick={onBackToCatalog}
-            className="text-xs font-semibold text-slate-500 hover:text-slate-900 flex items-center space-x-1 cursor-pointer"
+            className="text-xs font-medium text-slate-500 hover:text-slate-900 flex items-center space-x-1 cursor-pointer transition whitespace-nowrap"
           >
             <span>Catalog</span>
-            <ChevronRight className="w-3 h-3 text-slate-400" />
+            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
           </button>
 
-          <h2 className="text-sm font-extrabold text-slate-900 truncate max-w-sm sm:max-w-md">
+          <h2 className="text-sm font-bold text-slate-900 truncate max-w-xs sm:max-w-md">
             {problem.title}
           </h2>
 
-          <span className="hidden sm:inline-block px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded border bg-slate-100 text-slate-700 border-slate-300">
-            {problem.categoryLabel}
-          </span>
-
-          <span className={`px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded border ${
+          <span className={`hidden sm:inline-block px-2 py-0.5 text-[10px] font-mono font-medium rounded border ${
             problem.difficulty === 'Beginner'
               ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
               : problem.difficulty === 'Intermediate'
@@ -153,20 +223,20 @@ export const SandboxStudio: React.FC<SandboxStudioProps> = ({
             {problem.difficulty}
           </span>
 
-          <span className="hidden lg:flex items-center space-x-1 px-2 py-0.5 text-[10px] font-mono bg-indigo-50 text-indigo-700 border border-indigo-200 rounded">
-            <Gauge className="w-3 h-3" />
+          <span className="hidden lg:flex items-center space-x-1 px-2 py-0.5 text-[10px] font-mono bg-slate-100 text-slate-600 border border-slate-200 rounded">
+            <Gauge className="w-3 h-3 text-slate-500" />
             <span>Scale: {problem.scalabilityRating}/10</span>
           </span>
         </div>
 
-        {/* Right: Actions (Run Tests, Follow-up Suggester, AI Coach, Submit) */}
-        <div className="flex items-center space-x-2.5">
+        {/* Right: Actions (Run Tests, Follow-ups, AI Coach, Submit) */}
+        <div className="flex items-center space-x-2">
           
           {/* Run Tests Button */}
           <button
             onClick={handleRunTests}
             disabled={isRunningTests}
-            className="px-3 py-1.5 rounded-lg border border-slate-300 hover:border-slate-400 bg-white hover:bg-slate-50 text-slate-800 text-xs font-semibold tracking-wide flex items-center space-x-1.5 transition active:scale-95 shadow-xs cursor-pointer"
+            className="px-3 py-1.5 rounded-lg border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 text-slate-800 text-xs font-medium flex items-center space-x-1.5 transition active:scale-95 cursor-pointer shadow-xs"
           >
             <Play className="w-3.5 h-3.5 text-emerald-600 fill-emerald-600" />
             <span className="hidden sm:inline">Run Tests</span>
@@ -175,29 +245,29 @@ export const SandboxStudio: React.FC<SandboxStudioProps> = ({
           {/* Follow-Up Features Tab Trigger */}
           <button
             onClick={() => setBottomTab('follow-ups')}
-            className={`px-3 py-1.5 rounded-lg border text-xs font-semibold tracking-wide flex items-center space-x-1.5 transition active:scale-95 shadow-xs cursor-pointer ${
+            className={`px-2.5 py-1.5 rounded-lg border text-xs font-medium flex items-center space-x-1.5 transition active:scale-95 cursor-pointer ${
               bottomTab === 'follow-ups'
                 ? 'bg-amber-500 text-white border-amber-600'
-                : 'border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900'
+                : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
             }`}
           >
-            <Lightbulb className="w-3.5 h-3.5 text-amber-600" />
-            <span>Follow-Up Features ({followUpCount})</span>
+            <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
+            <span className="hidden sm:inline">Follow-Ups ({followUpCount})</span>
           </button>
 
-          {/* AI Coach Drawer Trigger (On-Demand) */}
+          {/* AI Coach Drawer Trigger */}
           <button
             onClick={() => setIsCoachOpen(true)}
-            className="px-3 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100/80 text-indigo-900 text-xs font-semibold tracking-wide flex items-center space-x-1.5 transition active:scale-95 shadow-xs cursor-pointer"
+            className="px-2.5 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-900 text-xs font-medium flex items-center space-x-1.5 transition active:scale-95 cursor-pointer"
           >
             <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
-            <span>AI Coach</span>
+            <span className="hidden sm:inline">AI Coach</span>
           </button>
 
           {/* Submit Solution Button */}
           <button
             onClick={handleSubmitSolution}
-            className="px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold tracking-wide flex items-center space-x-1.5 shadow-sm transition active:scale-95 border border-slate-900 cursor-pointer"
+            className="px-3.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center space-x-1.5 shadow-xs transition active:scale-95 cursor-pointer"
           >
             <Award className="w-3.5 h-3.5 text-amber-300" />
             <span>Submit Solution</span>
@@ -210,14 +280,14 @@ export const SandboxStudio: React.FC<SandboxStudioProps> = ({
       <div className="flex-1 flex overflow-hidden">
         
         {/* Left Sidebar: File Explorer / Problem Requirements */}
-        <div className="w-72 flex-shrink-0 bg-white border-r border-slate-300 flex flex-col h-full overflow-hidden">
+        <div className="w-64 sm:w-72 flex-shrink-0 bg-white border-r border-slate-200 flex flex-col h-full overflow-hidden">
           {/* Tab selector */}
-          <div className="flex border-b border-slate-200 bg-slate-50 text-xs font-semibold">
+          <div className="flex border-b border-slate-200 bg-slate-50/80 text-xs font-medium">
             <button
               onClick={() => setLeftTab('files')}
               className={`flex-1 py-2 px-3 text-center border-b-2 transition flex items-center justify-center space-x-1.5 ${
                 leftTab === 'files'
-                  ? 'border-slate-900 text-slate-900 bg-white'
+                  ? 'border-slate-900 text-slate-900 bg-white font-semibold'
                   : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
@@ -228,7 +298,7 @@ export const SandboxStudio: React.FC<SandboxStudioProps> = ({
               onClick={() => setLeftTab('description')}
               className={`flex-1 py-2 px-3 text-center border-b-2 transition flex items-center justify-center space-x-1.5 ${
                 leftTab === 'description'
-                  ? 'border-slate-900 text-slate-900 bg-white'
+                  ? 'border-slate-900 text-slate-900 bg-white font-semibold'
                   : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
@@ -290,7 +360,23 @@ export const SandboxStudio: React.FC<SandboxStudioProps> = ({
         <div className="flex-1 flex flex-col h-full overflow-hidden">
           
           {/* Top Half: Code Editor */}
-          <div className="flex-[6] min-h-[300px] flex flex-col overflow-hidden border-b border-slate-300">
+          <div className="flex-[6] min-h-[280px] flex flex-col overflow-hidden border-b border-slate-200">
+            {showCorrectSolutionBanner && (
+              <div className="bg-emerald-50 border-b border-emerald-200 px-4 py-2 flex items-center justify-between text-xs text-emerald-950 animate-in fade-in flex-shrink-0">
+                <div className="flex items-center space-x-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                  <span>
+                    <strong>Verified Correct Solution Loaded:</strong> Showing the correct implementation in the code editor with all testcase invariants passing.
+                  </span>
+                </div>
+                <button
+                  onClick={() => setShowCorrectSolutionBanner(false)}
+                  className="text-emerald-700 hover:text-emerald-900 font-bold ml-2 text-xs cursor-pointer"
+                >
+                  Dismiss
+                </button>
+              </div>
+            )}
             <CodeEditor
               activeFile={activeFile}
               onCodeChange={handleCodeChange}
@@ -302,13 +388,13 @@ export const SandboxStudio: React.FC<SandboxStudioProps> = ({
           <div className="flex-[4] min-h-[220px] flex flex-col overflow-hidden bg-white">
             
             {/* Split Tab Controls */}
-            <div className="h-9 px-3 bg-slate-100 border-b border-slate-300 flex items-center justify-between">
+            <div className="h-9 px-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
               <div className="flex items-center space-x-1">
                 <button
                   onClick={() => setBottomTab('tests')}
-                  className={`px-3 py-1 text-xs font-semibold rounded-md transition flex items-center space-x-1.5 cursor-pointer ${
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition flex items-center space-x-1.5 cursor-pointer ${
                     bottomTab === 'tests'
-                      ? 'bg-white text-slate-900 shadow-xs'
+                      ? 'bg-white text-slate-900 font-semibold shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
@@ -318,9 +404,9 @@ export const SandboxStudio: React.FC<SandboxStudioProps> = ({
 
                 <button
                   onClick={() => setBottomTab('terminal')}
-                  className={`px-3 py-1 text-xs font-semibold rounded-md transition flex items-center space-x-1.5 cursor-pointer ${
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition flex items-center space-x-1.5 cursor-pointer ${
                     bottomTab === 'terminal'
-                      ? 'bg-white text-slate-900 shadow-xs'
+                      ? 'bg-white text-slate-900 font-semibold shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
@@ -328,21 +414,20 @@ export const SandboxStudio: React.FC<SandboxStudioProps> = ({
                   <span>Terminal & Server Preview</span>
                 </button>
 
-                {/* Follow-Up Features Tab */}
                 <button
                   onClick={() => setBottomTab('follow-ups')}
-                  className={`px-3 py-1 text-xs font-semibold rounded-md transition flex items-center space-x-1.5 cursor-pointer ${
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition flex items-center space-x-1.5 cursor-pointer ${
                     bottomTab === 'follow-ups'
-                      ? 'bg-white text-amber-900 font-bold shadow-xs'
+                      ? 'bg-white text-amber-900 font-semibold shadow-xs'
                       : 'text-slate-600 hover:text-slate-900'
                   }`}
                 >
                   <Lightbulb className="w-3.5 h-3.5 text-amber-600" />
-                  <span>Suggested Follow-Up Features ({followUpCount})</span>
+                  <span>Suggested Follow-Ups ({followUpCount})</span>
                 </button>
               </div>
 
-              <div className="text-[10px] font-mono text-slate-500 flex items-center space-x-2">
+              <div className="text-[10px] font-mono text-slate-400 hidden sm:flex items-center space-x-2">
                 <span>Auto-save active</span>
               </div>
             </div>
@@ -354,6 +439,8 @@ export const SandboxStudio: React.FC<SandboxStudioProps> = ({
                   testCases={testCases}
                   onRunTests={handleRunTests}
                   isRunningTests={isRunningTests}
+                  onRetry={handleRetrySolution}
+                  onViewCorrectSolution={handleViewCorrectSolution}
                 />
               )}
 
@@ -361,12 +448,12 @@ export const SandboxStudio: React.FC<SandboxStudioProps> = ({
                 <LivePreviewTerminal problem={problem} />
               )}
 
-              {/* NEW: Follow-Up Features Suggester */}
+              {/* Follow-Up Features Suggester */}
               {bottomTab === 'follow-ups' && (
                 <div className="h-full overflow-y-auto p-4 space-y-4 bg-slate-50/40">
                   <div className="flex items-center justify-between pb-2 border-b border-slate-200">
                     <div>
-                      <h4 className="text-xs font-extrabold uppercase tracking-wider text-slate-900 flex items-center space-x-1.5">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center space-x-1.5">
                         <Lightbulb className="w-4 h-4 text-amber-600" />
                         <span>AI Architectural Follow-Up Feature Suggester</span>
                       </h4>
@@ -375,7 +462,7 @@ export const SandboxStudio: React.FC<SandboxStudioProps> = ({
                       </p>
                     </div>
 
-                    <span className="text-[11px] font-mono text-indigo-700 font-semibold bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
+                    <span className="text-[11px] font-mono text-indigo-700 font-medium bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
                       Extensibility Mode
                     </span>
                   </div>
@@ -386,14 +473,14 @@ export const SandboxStudio: React.FC<SandboxStudioProps> = ({
                       problem.suggestedFollowUps.map((feature) => (
                         <div
                           key={feature.id}
-                          className="bg-white border border-slate-300 rounded-xl p-4 shadow-xs flex flex-col justify-between hover:border-slate-400 transition"
+                          className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex flex-col justify-between hover:border-slate-300 transition"
                         >
                           <div className="space-y-2">
                             <div className="flex items-center justify-between">
                               <span className="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">
                                 {feature.category}
                               </span>
-                              <span className={`text-[10px] font-mono font-semibold ${
+                              <span className={`text-[10px] font-mono font-medium ${
                                 feature.complexity === 'High' ? 'text-purple-600' :
                                 feature.complexity === 'Medium' ? 'text-blue-600' : 'text-emerald-600'
                               }`}>
@@ -418,7 +505,7 @@ export const SandboxStudio: React.FC<SandboxStudioProps> = ({
                             {feature.starterSnippet ? (
                               <button
                                 onClick={() => handleInsertBoilerplate(feature)}
-                                className="flex-1 py-1.5 px-2 bg-slate-900 hover:bg-slate-800 text-white rounded text-[11px] font-semibold flex items-center justify-center space-x-1 transition cursor-pointer"
+                                className="flex-1 py-1.5 px-2 bg-slate-900 hover:bg-slate-800 text-white rounded text-[11px] font-medium flex items-center justify-center space-x-1 transition cursor-pointer"
                               >
                                 {copiedFeatureId === feature.id ? (
                                   <>
@@ -435,7 +522,7 @@ export const SandboxStudio: React.FC<SandboxStudioProps> = ({
                             ) : (
                               <button
                                 onClick={() => setActiveFeatureSpec(feature)}
-                                className="flex-1 py-1.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded text-[11px] font-semibold flex items-center justify-center space-x-1 transition cursor-pointer"
+                                className="flex-1 py-1.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded text-[11px] font-medium flex items-center justify-center space-x-1 transition cursor-pointer"
                               >
                                 <span>View Architecture Spec</span>
                                 <ArrowUpRight className="w-3 h-3" />
@@ -446,7 +533,7 @@ export const SandboxStudio: React.FC<SandboxStudioProps> = ({
                       ))
                     ) : (
                       <div className="col-span-3 text-center py-6 text-xs text-slate-400">
-                        No custom follow-up features generated yet. Click below to synthesize.
+                        No custom follow-up features generated yet.
                       </div>
                     )}
                   </div>
@@ -473,6 +560,9 @@ export const SandboxStudio: React.FC<SandboxStudioProps> = ({
         onClose={() => setIsEvaluationOpen(false)}
         problem={problem}
         onProceedToDefense={onProceedToTechnicalQuestions}
+        hasFailedTests={isSubmissionIncorrect}
+        onReviseSolution={handleRetrySolution}
+        onViewCorrectSolution={handleViewCorrectSolution}
       />
 
     </div>

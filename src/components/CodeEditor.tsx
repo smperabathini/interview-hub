@@ -31,7 +31,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   return (
     <div className="flex-1 flex flex-col h-full bg-white overflow-hidden">
       
-      {/* Editor Header / Tab Bar (Gestalt: Common Region, Emphasis: Active File) */}
+      {/* Editor Header / Tab Bar */}
       <div className="h-10 px-4 bg-slate-50 border-b border-slate-300 flex items-center justify-between select-none">
         <div className="flex items-center space-x-2">
           <div className="flex items-center space-x-2 px-3 py-1 bg-white border-t-2 border-t-slate-950 border-l border-r border-slate-300 rounded-t-md text-xs font-mono font-bold text-slate-950 shadow-xs -mb-[1px]">
@@ -46,7 +46,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
           </span>
         </div>
 
-        {/* Toolbar Controls (Gestalt: Proximity, Scale: 14px icons) */}
+        {/* Toolbar Controls */}
         <div className="flex items-center space-x-2">
           <span className="text-[10px] font-mono uppercase px-2 py-0.5 bg-slate-200/80 text-slate-800 rounded font-bold border border-slate-300">
             {activeFile.language}
@@ -70,7 +70,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         </div>
       </div>
 
-      {/* Editor Content Canvas (Contrast: High-legibility text & clean gutter) */}
+      {/* Editor Content Canvas */}
       <div className="flex-1 relative flex overflow-hidden font-mono text-xs leading-relaxed bg-[#fcfcfc]">
         
         {/* Line Numbers Gutter */}
@@ -92,7 +92,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         />
       </div>
 
-      {/* Footer Status Bar (Hierarchy: Tier 5 Micro-copy) */}
+      {/* Footer Status Bar: Clean - No "types checked" and no "incorrect detected" */}
       <div className="h-6 px-4 bg-slate-100/80 border-t border-slate-200 flex items-center justify-between text-[10px] font-mono text-slate-500 select-none">
         <div className="flex items-center space-x-3">
           <span>Lines: {lines.length}</span>
@@ -100,11 +100,6 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
           <span>UTF-8</span>
         </div>
         <div className="flex items-center space-x-2">
-          <span className="flex items-center space-x-1 text-emerald-700 font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-            <span>Types Checked</span>
-          </span>
-          <span className="text-slate-400">|</span>
           <span>Tab Size: 2</span>
         </div>
       </div>

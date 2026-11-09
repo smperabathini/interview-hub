@@ -45,7 +45,10 @@ export const BehavioralQuestionsView: React.FC = () => {
     'Technical Disagreement',
     'Overcoming Failure',
     'Delivering Under Pressure',
-    'Leadership & Initiative'
+    'Leadership & Initiative',
+    'Cross-Functional Collaboration',
+    'Mentorship & Culture',
+    'Conflict Resolution'
   ];
 
   const filteredQuestions = BEHAVIORAL_QUESTIONS.filter(

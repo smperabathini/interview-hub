@@ -113,7 +113,7 @@ export interface ChatMessage {
 
 export interface BehavioralQuestion {
   id: string;
-  category: 'Leadership & Initiative' | 'Conflict Resolution' | 'Overcoming Failure' | 'Delivering Under Pressure' | 'Technical Disagreement';
+  category: 'Leadership & Initiative' | 'Conflict Resolution' | 'Overcoming Failure' | 'Delivering Under Pressure' | 'Technical Disagreement' | 'Cross-Functional Collaboration' | 'Mentorship & Culture';
   title: string;
   question: string;
   context: string;
@@ -125,4 +125,25 @@ export interface BehavioralQuestion {
   };
   sampleAnswer: string;
   evaluationRubric: string[];
+}
+
+export type TechnicalCategoryType = 
+  | 'Sandbox Follow-Up'
+  | 'Distributed Systems'
+  | 'Database Internals'
+  | 'Concurrency & Multi-Threading'
+  | 'API & System Design'
+  | 'Security & Reliability';
+
+export interface TechnicalQuestion {
+  id: string;
+  category: TechnicalCategoryType;
+  title: string;
+  question: string;
+  context: string;
+  problemId?: string;
+  problemTitle?: string;
+  idealAnswerHighlights: string[];
+  suggestedTradeoff?: string;
+  sampleResponse?: string;
 }

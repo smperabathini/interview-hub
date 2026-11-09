@@ -76,5 +76,81 @@ export const BEHAVIORAL_QUESTIONS: BehavioralQuestion[] = [
       'Demonstrates self-directed initiative without waiting for formal manager permission',
       'Quantifies positive business or team productivity impact'
     ]
+  },
+  {
+    id: 'beh-5',
+    category: 'Cross-Functional Collaboration',
+    title: 'Navigating Conflicting Product & Engineering Constraints',
+    question: 'Describe a situation where product management requested a feature that conflicted with system security, scalability, or data integrity. How did you partner with them to find a win-win?',
+    context: 'Assesses empathy for business objectives, clear technical communication to non-technical stakeholders, and collaborative problem-solving.',
+    starPrompts: {
+      situation: 'What was the business or user goal behind the feature, and what risk did the naive implementation carry?',
+      task: 'How did you communicate the risk without sounding dismissive or like a blocker?',
+      action: 'What alternative architectural approach did you propose that fulfilled the business objective safely?',
+      result: 'How was the feature received by users, and how did it establish trust with product leadership?'
+    },
+    sampleAnswer: 'Our product team wanted to allow enterprise users to export multi-million-row financial audit logs as a synchronous CSV download. The naive implementation would exhaust API gateway memory and trigger 504 timeouts. Instead of rejecting the feature, I sat down with the product lead to understand user expectations. Users simply needed the export within a few minutes—it did not need to block their browser. I designed an asynchronous background job pipeline: users click export, our worker streams chunks to S3, and emails a pre-signed link upon completion. Product was thrilled because users could continue working, and the backend remained rock solid with zero gateway memory spikes.',
+    evaluationRubric: [
+      'Partners constructively with product rather than acting as a rigid gatekeeper',
+      'Translates technical limitations into user-centric tradeoffs',
+      'Engineers a creative alternative that achieves both business goals and technical resilience'
+    ]
+  },
+  {
+    id: 'beh-6',
+    category: 'Mentorship & Culture',
+    title: 'Mentoring an Underperforming or Stalled Engineer',
+    question: 'Tell me about a time you mentored a junior engineer or peer who was struggling with complex architectural tasks or missing deadlines. How did you support their growth?',
+    context: 'Assesses empathy, constructive coaching, debugging teammate friction, and multiplying engineering team capability.',
+    starPrompts: {
+      situation: 'Who was the engineer and what specific technical or workflow challenge were they experiencing?',
+      task: 'What role did you take on to assist without micromanaging or doing the work for them?',
+      action: 'What feedback, pair programming cadence, or structural guardrails did you establish?',
+      result: 'What measurable improvement did the engineer show in subsequent projects?'
+    },
+    sampleAnswer: 'A junior engineer on our team was consistently blocked when delivering features involving asynchronous message queues, resulting in delayed PRs and anxiety. I scheduled twice-weekly 45-minute pairing sessions where we mapped out sequence diagrams before writing code. I introduced them to contract-first testing, showing how mocking the queue locally removes the mystery of distributed messaging. Within 6 weeks, their PR cycle time dropped from 8 days to 1.5 days, and they independently designed and delivered our notification service integration ahead of schedule.',
+    evaluationRubric: [
+      'Focuses on root-cause enablement and confidence-building rather than simply taking over the ticket',
+      'Establishes durable mental models and repeatable engineering habits',
+      'Demonstrates measurable growth and independence in the mentee'
+    ]
+  },
+  {
+    id: 'beh-7',
+    category: 'Leadership & Initiative',
+    title: 'Navigating Extreme Ambiguity & Undefined Problem Spaces',
+    question: 'Describe a project where you were handed an ambiguous high-level goal with little to no documentation or requirements. How did you create clarity and drive execution?',
+    context: 'Assesses seniority, ability to define boundaries in chaos, driving stakeholder alignment, and incremental de-risking.',
+    starPrompts: {
+      situation: 'What was the ambiguous directive and what were the unknowns (technical, operational, business)?',
+      task: 'How did you establish an initial charter and define success metrics?',
+      action: 'How did you interview users, write Request for Comments (RFCs), and prototype iteratively?',
+      result: 'What was delivered, and how did your framework serve as the blueprint for subsequent projects?'
+    },
+    sampleAnswer: 'Leadership gave our team a brief mandate: "Reduce infrastructure cloud spend across our microservices fleet by 30% without impacting latency." No team had audited our AWS footprint in two years. I began by aggregating CloudWatch and Cost Explorer data, discovering that 45% of costs stemmed from over-provisioned idle Kubernetes pods and uncompacted DynamoDB read/write capacity. I authored an RFC proposing autoscaling policies, SPOT instance pools for batch workers, and TTL policies on transient log tables. I piloted this on 2 non-critical services first to prove latency was unaffected. The initiative reduced monthly AWS spend by $85,000 (34% savings) and was adopted across all 5 engineering divisions.',
+    evaluationRubric: [
+      'Takes proactive leadership to convert ambiguous goals into concrete, data-backed milestones',
+      'Writes clear RFCs and builds consensus across multiple stakeholders',
+      'De-risks through small pilots before rolling out broad changes'
+    ]
+  },
+  {
+    id: 'beh-8',
+    category: 'Conflict Resolution',
+    title: 'Balancing Technical Debt Paydown vs Feature Velocity',
+    question: 'How do you handle situations where leadership pushes for new features, but accumulating technical debt threatens system stability and developer productivity?',
+    context: 'Assesses pragmatic engineering judgment, business framing of technical debt, and sustainable delivery pacing.',
+    starPrompts: {
+      situation: 'What was the nature of the technical debt and how was it manifesting in bug rates or velocity slowdowns?',
+      task: 'How did you make the case to non-technical leaders who only see business value in new features?',
+      action: 'What framework (e.g. 20% innovation time, boy-scout rule, bundled refactoring) did you propose?',
+      result: 'What was the long-term impact on team velocity, deployment confidence, and incident frequency?'
+    },
+    sampleAnswer: 'Our core order processing monolith had grown fragile: test suite runtime had bloated to 40 minutes, and 1 out of 4 releases required hotfixes due to hidden coupling. Product wanted to rush 3 new checkout flows. Rather than complaining about "clean code," I quantified the business impact: our engineers were losing 12 hours every week waiting for flaky CI builds, and customer checkout failure rates had increased by 1.8%. I proposed a "1+3 model" where 20% of every sprint was explicitly dedicated to decomposing the billing module and parallelizing CI tests. Within two months, CI time dropped to 6 minutes, deployment failure rates dropped to near zero, and overall sprint velocity actually increased by 25%.',
+    evaluationRubric: [
+      'Translates technical debt into tangible business costs (engineer time, customer revenue risk, SLA breaches)',
+      'Finds a sustainable rhythm instead of asking for unrealistic multi-month complete rewrites',
+      'Measures and celebrates velocity gains after tech debt reduction'
+    ]
   }
 ];
